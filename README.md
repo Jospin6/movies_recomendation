@@ -1,48 +1,65 @@
-# Movie Recommendation System
+# 🎬 Movie Recommendation System
 
-A Streamlit movie recommendation application based on a precomputed similarity matrix and TMDB movie posters.
+A content-based movie recommendation application built with Python and Streamlit.
 
-## Project structure
+The application recommends movies similar to a selected title using a precomputed similarity matrix. Movie posters are retrieved dynamically from the TMDB API and displayed through an interactive Streamlit interface.
+
+## Screenshot
+
+<!-- Replace assets/movie-recommendation-screenshot.png with your screenshot -->
+
+![Movie Recommendation System](screenshot.png)
+
+## Features
+
+- Search and select a movie from the available catalogue
+- Generate movies similar to the selected title
+- Display recommended movie titles and posters
+- Retrieve movie posters from the TMDB API
+- Fast recommendations using a precomputed similarity matrix
+- Simple and interactive Streamlit interface
+- Environment-variable-based API key configuration
+
+## Technologies
+
+- Python
+- Streamlit
+- Pandas
+- Requests
+- Pickle
+- TMDB API
+- Scikit-learn
+
+## Project Structure
 
 ```text
 movie_recommendation/
 ├── app.py
+├── assets/
+│   └── movie-recommendation-screenshot.png
 ├── notebooks/
 │   ├── artificats/
 │   │   ├── movie_list.pkl
 │   │   └── similarity.pkl
 │   └── tmdb.ipynb
-├── src/movie_recommendation/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── recommender.py
-│   └── tmdb.py
+├── src/
+│   └── movie_recommendation/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── recommender.py
+│       └── tmdb.py
 ├── .env.example
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
 
-## Installation
+## Contributor
 
-```bash
-python -m venv .venv
-```
+- Jospin Ndagano
 
-Activate the virtual environment, then install the dependencies:
+## License
 
-```bash
-pip install -r requirements.txt
-```
+This project is licensed under the [MIT License](LICENSE).
 
-Copy `.env.example` to `.env` and replace the placeholder with your TMDB API key.
-
-## Run the application
-
-```bash
-streamlit run app.py
-```
-
-## Security
-
-Never commit the `.env` file or your TMDB API key to GitHub.
+Copyright © 2026 Jospin Ndagano
