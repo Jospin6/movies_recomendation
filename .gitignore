@@ -1,9 +1,25 @@
-.env
-.idea/
-.vscode/
+# Python
 __pycache__/
 *.py[cod]
 .pytest_cache/
-.streamlit/
+.mypy_cache/
+.ruff_cache/
 .venv/
-venv/
+backend/.venv/
+.ipynb_checkpoints/
+
+# Environment files
+.env
+backend/.env
+backend/.env.local
+frontend/.env
+frontend/.env.local
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS files
+.DS_Store
+Thumbs.db

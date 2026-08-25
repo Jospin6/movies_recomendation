@@ -1,7 +1,9 @@
+fastapi
+uvicorn[standard]
 numpy
 pandas
 pyarrow
-python-dotenv
+matplotlib
+nltk
 requests
-streamlit
 scikit-learn
