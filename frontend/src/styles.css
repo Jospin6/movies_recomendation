@@ -66,68 +66,13 @@ img {
 .app-shell {
   width: min(1240px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 28px 0 40px;
+  padding: 16px 0 40px;
 }
 
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
-  gap: 20px;
-  align-items: stretch;
-  margin-bottom: 20px;
-  animation: fade-up 0.65s ease both;
-}
-
-.hero-copy,
-.hero-card,
 .panel {
   backdrop-filter: blur(18px);
 }
-
-.hero-copy {
-  padding: 8px 4px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(117, 214, 255, 0.12);
-  border: 1px solid rgba(117, 214, 255, 0.18);
-  color: #c8efff;
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.hero h1 {
-  margin: 16px 0 12px;
-  max-width: 12ch;
-  font-size: clamp(2.3rem, 4vw, 4.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-}
-
-.lede {
-  margin: 0;
-  max-width: 62ch;
-  color: var(--soft);
-  font-size: 1.02rem;
-  line-height: 1.65;
-}
-
-.hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.meta-chip,
-.count-badge,
-.selection-id {
+.count-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -139,34 +84,6 @@ img {
   color: var(--soft);
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 0.9rem;
-}
-
-.status-pill.is-success {
-  background: rgba(141, 242, 154, 0.14);
-  border-color: rgba(141, 242, 154, 0.22);
-  color: #c5f8cb;
-}
-
-.status-pill.is-error {
-  background: rgba(255, 124, 140, 0.16);
-  border-color: rgba(255, 124, 140, 0.24);
-  color: #ffd1d8;
-}
-
-.status-pill.is-warm {
-  background: rgba(245, 163, 92, 0.14);
-  border-color: rgba(245, 163, 92, 0.24);
-  color: #ffd8b7;
-}
-
 .panel {
   position: relative;
   background: linear-gradient(180deg, rgba(15, 22, 34, 0.92), rgba(10, 15, 24, 0.88));
@@ -175,24 +92,12 @@ img {
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
 }
 
-.hero-card {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  animation: float 6s ease-in-out infinite;
-}
-
 .panel-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
-}
-
-.panel-header.compact {
-  margin-bottom: 22px;
 }
 
 .panel h2 {
@@ -208,30 +113,6 @@ img {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.stat {
-  padding: 14px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.stat span {
-  display: block;
-  color: var(--muted);
-  font-size: 0.8rem;
-  margin-bottom: 8px;
-}
-
-.stat strong {
-  font-size: 1rem;
 }
 
 .layout {
@@ -464,24 +345,9 @@ img {
   }
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
 @media (max-width: 960px) {
-  .hero,
   .layout {
     grid-template-columns: 1fr;
-  }
-
-  .hero h1 {
-    max-width: none;
   }
 
   .movie-list,
@@ -496,7 +362,6 @@ img {
     padding-top: 16px;
   }
 
-  .hero-card,
   .sidebar,
   .results {
     padding: 16px;
@@ -504,10 +369,6 @@ img {
 
   .panel-header {
     align-items: flex-start;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
   }
 
   .movie-item {

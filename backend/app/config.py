@@ -1,9 +1,15 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_DIR = BACKEND_ROOT / "notebooks" / "artificats"
+
+# Keep compatibility with the old project layout and support the new backend-local env file.
+load_dotenv(BACKEND_ROOT / ".env")
+load_dotenv(BACKEND_ROOT.parent / ".env")
 
 TMDB_API_KEY = os.getenv("TMDB_API_KEY", "").strip()
 TMDB_API_URL = (os.getenv("TMDB_API_URL", "") or "https://api.themoviedb.org/3").rstrip("/")

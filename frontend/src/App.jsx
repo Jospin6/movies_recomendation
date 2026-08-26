@@ -1,19 +1,13 @@
 import { useDeferredValue, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { API_URL, fetchHealth, fetchMovies, fetchRecommendations } from "./api";
+import { fetchMovies, fetchRecommendations } from "./api";
 
 function App() {
   const [search, setSearch] = useState("");
   const [selectedMovieId, setSelectedMovieId] = useState(null);
   const deferredSearch = useDeferredValue(search);
   const normalizedSearch = deferredSearch.trim().toLowerCase();
-
-  const healthQuery = useQuery({
-    queryKey: ["health"],
-    queryFn: ({ signal }) => fetchHealth({ signal }),
-    staleTime: 60_000,
-  });
 
   const moviesQuery = useQuery({
     queryKey: ["movies"],
@@ -40,62 +34,8 @@ function App() {
   const selectedMovie = movies.find((movie) => movie.movie_id === selectedMovieId) ?? null;
   const recommendations = recommendationsQuery.data?.recommendations ?? [];
 
-  const apiStatus = healthQuery.isError
-    ? "Offline"
-    : healthQuery.isSuccess
-      ? "Connected"
-      : "Checking";
-
-  const apiStatusClass = healthQuery.isError
-    ? "status-pill is-error"
-    : healthQuery.isSuccess
-      ? "status-pill is-success"
-      : "status-pill is-warm";
-
   return (
     <main className="app-shell">
-      <section className="hero">
-        <div className="hero-copy">
-          <span className="badge">FastAPI + React + TanStack Query</span>
-          <h1>Movie recommendations split into a real backend and frontend.</h1>
-          <p className="lede">
-            Search the catalogue on the left, fetch recommendations from the FastAPI
-            API, and swap the backend URL through env variables when you deploy.
-          </p>
-          <div className="hero-meta">
-            <span className={apiStatusClass}>{apiStatus}</span>
-            <span className="meta-chip">API: {API_URL}</span>
-            <span className="meta-chip">Movies: {movies.length || "..."}</span>
-          </div>
-        </div>
-
-        <div className="hero-card panel">
-          <div className="panel-header compact">
-            <div>
-              <p className="eyebrow">Current selection</p>
-              <h2>{selectedMovie ? selectedMovie.title : "Waiting for data"}</h2>
-            </div>
-            <span className="selection-id">
-              {selectedMovie ? `#${selectedMovie.movie_id}` : "--"}
-            </span>
-          </div>
-          <div className="stats-grid">
-            <div className="stat">
-              <span>Catalogue</span>
-              <strong>{movies.length || "Loading"}</strong>
-            </div>
-            <div className="stat">
-              <span>Recommendations</span>
-              <strong>{recommendations.length || "..."}</strong>
-            </div>
-            <div className="stat">
-              <span>Backend</span>
-              <strong>{apiStatus}</strong>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="layout">
         <aside className="panel sidebar">
           <div className="panel-header">
