@@ -8,7 +8,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_DIR = BACKEND_ROOT / "notebooks" / "artificats"
 DATA_DIR = BACKEND_ROOT / "data"
 MOVIE_CATALOG_PATH = DATA_DIR / "movies.json"
-RECOMMENDATIONS_PATH = DATA_DIR / "recommendations.json"
+SIMILARITY_MATRIX_PATH = DATA_DIR / "similarity.npy"
 
 # Keep compatibility with the old project layout and support the new backend-local env file.
 load_dotenv(BACKEND_ROOT / ".env")

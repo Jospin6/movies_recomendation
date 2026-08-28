@@ -29,7 +29,7 @@ def health() -> dict[str, str]:
 
 @app.get("/movies", response_model=MovieCatalogResponse, tags=["movies"])
 def get_movies() -> dict[str, list[dict[str, object]]]:
-    movies, _movie_index_by_id, _title_to_movie_index, _recommendations_by_index = load_artifacts()
+    movies, _movie_index_by_id, _title_to_movie_index, _similarity_matrix = load_artifacts()
     return {"movies": list_movies(movies)}
 
 
@@ -45,14 +45,14 @@ def get_recommendations(
             detail="Provide either movie_id or title.",
         )
 
-    movies, movie_index_by_id, title_to_movie_index, recommendations_by_index = load_artifacts()
+    movies, movie_index_by_id, title_to_movie_index, similarity_matrix = load_artifacts()
 
     try:
         selected_movie, recommendations = recommend(
             movies,
             movie_index_by_id,
             title_to_movie_index,
-            recommendations_by_index,
+            similarity_matrix,
             movie_id=movie_id,
             movie_title=title,
             limit=limit,

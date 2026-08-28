@@ -27,7 +27,7 @@ movie_recommendation/
 |   |   `-- tmdb.py
 |   |-- data/
 |   |   |-- movies.json
-|   |   `-- recommendations.json
+|   |   `-- similarity.npy
 |   |-- notebooks/
 |   |   |-- artificats/
 |   |   |   |-- movie_list.pkl
@@ -75,7 +75,9 @@ uvicorn app.main:app --reload
 ```
 
 `requirements.txt` is now production-only so Vercel installs a lighter backend bundle.
-Use `requirements-dev.txt` locally when you need the notebook, dev tooling, or to regenerate the JSON runtime data.
+Use `requirements-dev.txt` locally when you need the notebook, dev tooling, or to regenerate the runtime ML artifacts.
+
+The deployed backend loads `movies.json` plus `similarity.npy`, then computes the top-k recommendations at request time. That keeps the model behavior intact while avoiding the heavy notebook-only dependencies in production.
 
 ## Frontend
 
