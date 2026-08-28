@@ -1,137 +1,123 @@
-import pickle
+import json
 from functools import lru_cache
 from typing import Any
 
-import numpy as np
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-from .config import ARTIFACTS_DIR
+from .config import MOVIE_CATALOG_PATH, RECOMMENDATIONS_PATH
 from .tmdb import fetch_poster
 
 
-def _build_feature_matrix(movies: pd.DataFrame):
-    """Rebuild the movie feature matrix from the stored tags."""
-    tags = movies["tags"].fillna("").astype(str)
-    vectorizer = CountVectorizer(max_features=500, stop_words="english")
-    return vectorizer.fit_transform(tags)
+def _load_json(path) -> Any:
+    with path.open("r", encoding="utf-8") as file_handle:
+        return json.load(file_handle)
 
 
-def _is_square_numeric_matrix(candidate: object, movie_count: int) -> bool:
-    """Return True when the candidate looks like a valid similarity matrix."""
-    if hasattr(candidate, "toarray") or hasattr(candidate, "tocsr"):
-        return False
-
-    try:
-        values = np.asarray(candidate)
-    except Exception:
-        return False
-
-    return (
-        values.ndim == 2
-        and values.shape == (movie_count, movie_count)
-        and np.issubdtype(values.dtype, np.number)
-    )
-
-
-def _serialize_movie(movie: Any) -> dict[str, Any]:
-    """Normalize movie rows to JSON-serializable dictionaries."""
-    if hasattr(movie, "movie_id"):
-        movie_id = movie.movie_id
-    else:
-        movie_id = movie["movie_id"]
-
-    if hasattr(movie, "title"):
-        title = movie.title
-    else:
-        title = movie["title"]
-
-    return {"movie_id": int(movie_id), "title": str(title)}
+def _normalize_movie(movie: dict[str, Any]) -> dict[str, Any]:
+    return {"movie_id": int(movie["movie_id"]), "title": str(movie["title"])}
 
 
 def _resolve_movie_index(
-    movies: pd.DataFrame,
+    movie_index_by_id: dict[int, int],
+    title_to_movie_index: dict[str, int],
     *,
     movie_id: int | None = None,
     movie_title: str | None = None,
 ) -> int:
-    """Find the row index for the selected movie."""
     if movie_id is not None:
-        matching_rows = movies.index[movies["movie_id"].astype(int) == int(movie_id)].tolist()
-        label = f"movie_id={movie_id}"
-    elif movie_title:
-        matching_rows = movies.index[movies["title"].astype(str) == movie_title].tolist()
-        label = f"title={movie_title}"
-    else:
-        raise ValueError("Provide a movie_id or a title.")
+        resolved_movie_id = int(movie_id)
+        resolved_movie_index = movie_index_by_id.get(resolved_movie_id)
+        if resolved_movie_index is None:
+            raise ValueError(f"Movie not found: movie_id={movie_id}")
+        return resolved_movie_index
 
-    if not matching_rows:
-        raise ValueError(f"Movie not found: {label}")
+    if movie_title:
+        resolved_movie_index = title_to_movie_index.get(movie_title)
+        if resolved_movie_index is None:
+            raise ValueError(f"Movie not found: title={movie_title}")
+        return resolved_movie_index
 
-    return matching_rows[0]
+    raise ValueError("Provide a movie_id or a title.")
 
 
 @lru_cache(maxsize=1)
-def load_artifacts() -> tuple[pd.DataFrame, object]:
-    """Load the trained movie data and a usable similarity structure once."""
-    movie_list_path = ARTIFACTS_DIR / "movie_list.pkl"
-    similarity_path = ARTIFACTS_DIR / "similarity.pkl"
+def load_artifacts() -> tuple[
+    list[dict[str, Any]],
+    dict[int, int],
+    dict[str, int],
+    list[list[int]],
+]:
+    """Load the precomputed movie catalog and recommendation index once."""
+    raw_movies = _load_json(MOVIE_CATALOG_PATH)
+    raw_recommendations = _load_json(RECOMMENDATIONS_PATH)
 
-    with movie_list_path.open("rb") as movie_file:
-        movies = pickle.load(movie_file)
+    if not isinstance(raw_movies, list):
+        raise TypeError("movies.json must contain a list of movies.")
 
-    similarity = None
-    if similarity_path.exists():
-        with similarity_path.open("rb") as similarity_file:
-            similarity = pickle.load(similarity_file)
+    if not isinstance(raw_recommendations, list):
+        raise TypeError("recommendations.json must contain a list of recommendation rows.")
 
-    if not isinstance(movies, pd.DataFrame):
-        raise TypeError("movie_list.pkl must contain a pandas DataFrame.")
+    if len(raw_recommendations) != len(raw_movies):
+        raise ValueError("movies.json and recommendations.json must contain the same number of rows.")
 
-    if not _is_square_numeric_matrix(similarity, len(movies)):
-        similarity = _build_feature_matrix(movies)
-    else:
-        similarity = np.asarray(similarity)
+    movies: list[dict[str, Any]] = []
+    movie_index_by_id: dict[int, int] = {}
+    title_to_movie_index: dict[str, int] = {}
+    recommendations_by_index: list[list[int]] = []
 
-    return movies, similarity
+    for index, raw_movie in enumerate(raw_movies):
+        if not isinstance(raw_movie, dict):
+            raise TypeError("Each movie must be a JSON object.")
+
+        movie = _normalize_movie(raw_movie)
+        movies.append(movie)
+        movie_index_by_id.setdefault(movie["movie_id"], index)
+        title_to_movie_index.setdefault(movie["title"], index)
+
+    for raw_recommendations_for_movie in raw_recommendations:
+        if not isinstance(raw_recommendations_for_movie, list):
+            raise TypeError("Recommendation entries must be lists.")
+
+        recommendations_by_index.append(
+            [int(recommended_movie_id) for recommended_movie_id in raw_recommendations_for_movie]
+        )
+
+    return movies, movie_index_by_id, title_to_movie_index, recommendations_by_index
 
 
-def list_movies(movies: pd.DataFrame) -> list[dict[str, Any]]:
+def list_movies(movies: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Return the movie catalogue in a frontend-friendly format."""
-    return [_serialize_movie(movie) for movie in movies.itertuples(index=False)]
+    return movies
 
 
 def recommend(
-    movies: pd.DataFrame,
-    similarity: object,
+    movies: list[dict[str, Any]],
+    movie_index_by_id: dict[int, int],
+    title_to_movie_index: dict[str, int],
+    recommendations_by_index: list[list[int]],
     *,
     movie_id: int | None = None,
     movie_title: str | None = None,
     limit: int = 5,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Return the most similar movies and their poster URLs."""
-    movie_index = _resolve_movie_index(
-        movies,
+    selected_movie_index = _resolve_movie_index(
+        movie_index_by_id,
+        title_to_movie_index,
         movie_id=movie_id,
         movie_title=movie_title,
     )
 
-    if _is_square_numeric_matrix(similarity, len(movies)):
-        similarity_scores = np.asarray(similarity[movie_index]).ravel()
-    else:
-        similarity_scores = cosine_similarity(similarity[movie_index], similarity).ravel()
-
-    distances = sorted(enumerate(similarity_scores), reverse=True, key=lambda item: item[1])
-    selected_movie = _serialize_movie(movies.iloc[movie_index])
-
+    selected_movie = movies[selected_movie_index]
     recommendations = []
-    for index, _score in distances[1 : limit + 1]:
-        selected = movies.iloc[index]
+    for recommended_movie_id in recommendations_by_index[selected_movie_index][:limit]:
+        recommended_movie_index = movie_index_by_id.get(recommended_movie_id)
+        if recommended_movie_index is None:
+            continue
+
+        recommended_movie = movies[recommended_movie_index]
         recommendations.append(
             {
-                **_serialize_movie(selected),
-                "poster_url": fetch_poster(int(selected.movie_id)),
+                **recommended_movie,
+                "poster_url": fetch_poster(int(recommended_movie_id)),
             }
         )
 

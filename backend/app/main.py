@@ -17,12 +17,6 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def warm_up_artifacts() -> None:
-    """Load artifacts at startup so missing files fail fast."""
-    load_artifacts()
-
-
 @app.get("/", tags=["meta"])
 def root() -> dict[str, str]:
     return {"message": "Movie Recommendation API", "docs": "/docs"}
@@ -35,7 +29,7 @@ def health() -> dict[str, str]:
 
 @app.get("/movies", response_model=MovieCatalogResponse, tags=["movies"])
 def get_movies() -> dict[str, list[dict[str, object]]]:
-    movies, _similarity = load_artifacts()
+    movies, _movie_index_by_id, _title_to_movie_index, _recommendations_by_index = load_artifacts()
     return {"movies": list_movies(movies)}
 
 
@@ -51,12 +45,14 @@ def get_recommendations(
             detail="Provide either movie_id or title.",
         )
 
-    movies, similarity = load_artifacts()
+    movies, movie_index_by_id, title_to_movie_index, recommendations_by_index = load_artifacts()
 
     try:
         selected_movie, recommendations = recommend(
             movies,
-            similarity,
+            movie_index_by_id,
+            title_to_movie_index,
+            recommendations_by_index,
             movie_id=movie_id,
             movie_title=title,
             limit=limit,

@@ -25,11 +25,16 @@ movie_recommendation/
 |   |   |-- recommender.py
 |   |   |-- schemas.py
 |   |   `-- tmdb.py
+|   |-- data/
+|   |   |-- movies.json
+|   |   `-- recommendations.json
 |   |-- notebooks/
 |   |   |-- artificats/
 |   |   |   |-- movie_list.pkl
 |   |   |   `-- similarity.pkl
 |   |   `-- tmdb.ipynb
+|   |-- scripts/
+|   |   `-- build_runtime_data.py
 |   |-- .env.example
 |   `-- requirements.txt
 |-- frontend/
@@ -65,11 +70,12 @@ From `backend/`:
 
 ```bash
 pip install -r requirements-dev.txt
+python scripts/build_runtime_data.py
 uvicorn app.main:app --reload
 ```
 
 `requirements.txt` is now production-only so Vercel installs a lighter backend bundle.
-Use `requirements-dev.txt` locally when you need the notebook and dev tooling.
+Use `requirements-dev.txt` locally when you need the notebook, dev tooling, or to regenerate the JSON runtime data.
 
 ## Frontend
 

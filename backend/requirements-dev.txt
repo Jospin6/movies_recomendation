@@ -2,6 +2,9 @@
 
 # Local server and notebook-only tooling.
 uvicorn[standard]
+numpy
+pandas
+scikit-learn
 pyarrow
 matplotlib
 nltk
