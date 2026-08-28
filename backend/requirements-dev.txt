@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# Local server and notebook-only tooling.
+uvicorn[standard]
+pyarrow
+matplotlib
+nltk

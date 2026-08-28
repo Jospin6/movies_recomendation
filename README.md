@@ -64,8 +64,12 @@ movie_recommendation/
 From `backend/`:
 
 ```bash
+pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 ```
+
+`requirements.txt` is now production-only so Vercel installs a lighter backend bundle.
+Use `requirements-dev.txt` locally when you need the notebook and dev tooling.
 
 ## Frontend
 
