@@ -103,7 +103,7 @@ function App() {
           <div className="panel-header">
             <div>
               <p className="eyebrow">Recommendations</p>
-              <h2>Similar movies from the API</h2>
+              <h2>Similar movies</h2>
             </div>
             <span className="count-badge">{recommendations.length}</span>
           </div>
